@@ -4,7 +4,7 @@ package com.mycompany.concessionari;
  * @author Adrián Díaz García
  * Objecte Pare Vehicle.
  */
-public abstract class Vehicle {
+public abstract class Vehicle implements java.io.Serializable {
 
     private String marca;
     private int potencia;

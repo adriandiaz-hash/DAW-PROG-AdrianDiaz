@@ -1,18 +1,19 @@
 package com.mycompany.concessionari;
 import java.util.ArrayList;
+import java.io.Serializable;
 
 /**
  * Classe que gestiona un ArrayList de Vehicles de la classe Vehicle
  * * @author [T] Adrián Díaz García.
  */
-public class Vehicles {
+public class Vehicles implements Serializable {
 
     ArrayList<Vehicle> vehicles = new ArrayList<>();
 
     public ArrayList<Vehicle> getVehicles() {
         ArrayList<Vehicle> nou = new ArrayList<>();
         for (Vehicle vehicle : vehicles) {
-            nou.add(new Vehicle(vehicle)); // Retorna una còpia de cada vehicle per evitar que es modifiquin
+            nou.add(vehicle.copiar()); // Retorna una còpia de cada vehicle per evitar que es modifiquin
         }
         return nou;
     }
@@ -39,10 +40,11 @@ public class Vehicles {
         }
     }
 
-    public Vehicle retornaVehicleConsumMinim() {
+    public Vehicle retornaVehicleConsumMinim(int potencia) throws Exception {
         Vehicle vehicleMinim = null;
 
-        for (int i = 0; i < vehicles.size(); i++) {
+        for (Vehicle v : vehicles) {
+            Vehicle v = vehicles.get(i);
             if (v.getPotencia() == potencia) {
                 if (vehicleMinim == null || v.retornaConsum() < vehicleMinim.retornaConsum()) {
                     vehicleMinim = v;
