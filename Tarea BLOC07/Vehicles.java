@@ -44,7 +44,6 @@ public class Vehicles implements Serializable {
         Vehicle vehicleMinim = null;
 
         for (Vehicle v : vehicles) {
-            Vehicle v = vehicles.get(i);
             if (v.getPotencia() == potencia) {
                 if (vehicleMinim == null || v.retornaConsum() < vehicleMinim.retornaConsum()) {
                     vehicleMinim = v;
