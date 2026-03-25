@@ -1,0 +1,212 @@
+package com.mycompany.concessionari;
+
+import java.io.*;
+import java.util.Scanner;
+import java.time.LocalDate;
+import java.util.InputMismatchException;
+
+/**
+ * Classe principal del projecte que actua com a interfície d'usuari per consola.
+ * Gestiona el menú d'opcions, l'entrada de dades segura amb control d'excepcions,
+ * la persistència en fitxers binaris i la generació d'informes forenses en text.
+ * * @autor [T] Adrián Díaz García
+ */
+
+public class ConcessionariAdrianDiaz {
+
+    private static final String FITXER_DADES = "datos_vehiculos_adrian_diaz.dat";
+    private static final String FITXER_TEXT = "informacion_vehiculo_adrian_diaz.txt";
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Vehicles gestor = cargarDatos(); 
+
+        int opcion = -1;
+        do {
+            System.out.println("\n--- CONCESSIONARI ADRIÁN DÍAZ ---");
+            System.out.println("1. Afegir Cotxe");
+            System.out.println("2. Afegir Moto");
+            System.out.println("3. Mostrar Vehicles");
+            System.out.println("4. Cercar Vehicle Consum Mínim");
+            System.out.println("0. Sortir i Guardar");
+            System.out.print("Selecciona una opció: ");
+            
+            try {
+                opcion = sc.nextInt();
+                sc.nextLine();
+
+                switch (opcion) {
+                    case 1: {
+                        introduirVehicles(1, sc, gestor);
+                        break;
+                    }
+                    case 2: {
+                        introduirVehicles(2, sc, gestor);
+                        break;
+                    }
+                    case 3: {
+                        System.out.println("\n--- LLISTAT DE VEHICLES ---");
+                        java.util.ArrayList<Vehicle> llista = gestor.getVehicles();
+                        
+                        if (llista.isEmpty()) {
+                            System.out.println("No hi ha cap vehicle al concessionari.");
+                        } else {
+                            for (Vehicle v : llista) {
+                                System.out.print(v.toString());
+                                System.out.println(" | Consum real: " + v.retornaConsum() + " L/100km");
+                            }
+                        }
+                        break;
+                    }
+                    case 4: {
+                        System.out.println("\n--- CERCAR VEHICLE AMB CONSUM MÍNIM ---");
+                        System.out.print("Introdueix la potència (CV) a cercar: ");
+                        int potBusqueda = sc.nextInt();
+                        sc.nextLine(); 
+
+                        try {
+                            Vehicle vMinim = gestor.retornaVehicleConsumMinim(potBusqueda);
+                            System.out.println("Vehicle trobat amb el consum més baix:");
+                            System.out.println(vMinim.toString() + " | Consum real: " + vMinim.retornaConsum() + " L/100km");
+                            
+                        } catch (Exception e) {
+                            System.out.println("Avís del sistema: " + e.getMessage());
+                        }
+                        break;
+                    }
+                    case 0:
+                        generarInformeText(gestor, sc); 
+                        guardarDatos(gestor);           
+                        System.out.println("Dades guardades. Fins aviat!");
+                        break;
+                    default:
+                        System.out.println("Avís: Opció no vàlida. Introdueix un número del 0 al 4.");
+                }
+            } catch (InputMismatchException e) {
+                
+                System.out.println("Error crític evitat: Has introduït un caràcter no vàlid. S'esperava un número.");
+                sc.nextLine(); 
+            }
+        } while (opcion != 0);
+    }
+
+    private static Vehicles cargarDatos() {
+        File f = new File(FITXER_DADES);
+        
+        if (f.exists()) {
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f))) {
+                Vehicles v = (Vehicles) ois.readObject();
+                System.out.println("Fitxer " + FITXER_DADES + " carregat correctament.");
+                
+                java.util.ArrayList<Vehicle> llista = v.getVehicles();
+                if (!llista.isEmpty()) {
+                    System.out.println("\n--- VEHICLES CARREGATS EN MEMÒRIA ---");
+                    for (Vehicle veh : llista) {
+                        System.out.println(veh.toString() + " | Consum real: " + veh.retornaConsum() + " L/100km");
+                    }
+                }
+                return v;
+            } catch (Exception e) {
+                System.out.println("Error al carregar les dades: " + e.getMessage());
+            }
+        } else {
+            System.out.println("Avís: El fitxer " + FITXER_DADES + " no existeix.");
+            System.out.println("Iniciant una nova base de dades de vehicles buida...");
+        }
+        return new Vehicles(); 
+    }
+
+    private static void guardarDatos(Vehicles gestor) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FITXER_DADES))) {
+            oos.writeObject(gestor);
+        } catch (IOException e) {
+            System.out.println("Error en guardar les dades: " + e.getMessage());
+        }
+    }
+
+    private static void introduirVehicles(int tipus, Scanner sc, Vehicles gestor) {
+        String nomTipus = (tipus == 1) ? "cotxes" : "motos";
+        System.out.print("\nQuants " + nomTipus + " vols afegir a la llista?: ");
+        
+        try {
+            int quantitat = sc.nextInt();
+            sc.nextLine(); 
+
+            for (int i = 0; i < quantitat; i++) {
+                System.out.println("\n--- DADES DEL VEHICLE " + (i + 1) + " DE " + quantitat + " ---");
+                System.out.print("Marca: ");
+                String marca = sc.nextLine();
+                
+                System.out.print("Potència (CV): ");
+                int potencia = sc.nextInt();
+                
+                System.out.print("Velocitat actual: ");
+                int velocitat = sc.nextInt();
+                
+                System.out.print("Velocitat màxima: ");
+                int velocitatMaxima = sc.nextInt();
+                
+                System.out.print("Consum base (ex: 5,5): ");
+                double consumBase = sc.nextDouble();
+                
+                if (tipus == 1) { 
+                    System.out.print("Nombre de portes (3 o 5): ");
+                    int portes = sc.nextInt();
+                    sc.nextLine(); 
+                    Cotxe nouCotxe = new Cotxe(marca, potencia, velocitat, velocitatMaxima, consumBase, portes);
+                    gestor.afegirVehicle(nouCotxe);
+                    System.out.println("Cotxe afegit a la base de dades amb èxit.");
+                } else { 
+                    System.out.print("Te Maleter (true o false): ");
+                    boolean maleter = sc.nextBoolean();
+                    sc.nextLine(); 
+                    Moto novaMoto = new Moto(marca, potencia, velocitat, velocitatMaxima, consumBase, maleter);
+                    gestor.afegirVehicle(novaMoto);
+                    System.out.println("Moto afegida a la base de dades amb èxit.");
+                }
+            }
+        } catch (InputMismatchException e) {
+             System.out.println("Error de format: Les dades introduïdes no són vàlides. Operació cancel·lada per seguretat.");
+             sc.nextLine(); 
+        }
+    }
+
+    private static void generarInformeText(Vehicles gestor, Scanner sc) {
+        System.out.println("\n--- GENERANT INFORME FORENSE FINAL ---");
+        System.out.print("Introdueix una potència (CV) per buscar i generar l'informe: ");
+        
+        try {
+            int potencia = sc.nextInt();
+            sc.nextLine(); 
+
+            try (PrintWriter pw = new PrintWriter(new FileWriter(FITXER_TEXT))) {
+                pw.println("Potència sol·licitada al sistema: " + potencia + " CV");
+                
+                try {
+                    Vehicle vMinim = gestor.retornaVehicleConsumMinim(potencia);
+                    pw.println("Vehicle de consum mínim: Marca=" + vMinim.getMarca() + 
+                               ", Potència=" + vMinim.getPotencia() + "CV, Vel.Màxima=" + 
+                               vMinim.getVelocitatMaxima() + "km/h, Consum real=" + 
+                               vMinim.retornaConsum() + " L/100km");
+                    pw.println("Investigador: Adrián Díaz García - Data: " + LocalDate.now());
+                    
+                    int totalMarca = gestor.comptarVehiclesDeMarca(vMinim.getMarca());
+                    pw.println("Total de vehicles de la marca " + vMinim.getMarca() + " a la llista: " + totalMarca);
+                    
+                    System.out.println("Informe de text generat amb èxit a: " + FITXER_TEXT);
+                    
+                } catch (Exception e) {
+                    System.out.println("Avís per a l'informe: " + e.getMessage());
+                    pw.println("No s'han trobat vehicles amb la potència sol·licitada per generar les dades.");
+                    pw.println("Investigador: Adrián Díaz García - Data: " + LocalDate.now());
+                    pw.println("Recompte de marca: N/A");
+                }
+            } catch (IOException e) {
+                System.out.println("Error crític al crear el fitxer de text: " + e.getMessage());
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("Error: Has d'introduir un número per a la potència. Generació d'informe cancel·lada.");
+            sc.nextLine();
+        }
+    }
+}

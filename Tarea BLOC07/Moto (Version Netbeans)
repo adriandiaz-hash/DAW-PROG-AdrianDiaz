@@ -1,0 +1,47 @@
+package com.mycompany.concessionari;
+
+/**
+ * Subclasse de Vehicle que representa una motocicleta. 
+ * Incorpora l'atribut específic del maleter i defineix 
+ * la seva pròpia lògica per al càlcul del consum de combustible.
+ * * @autor [T] Adrián Díaz García
+ */
+
+public class Moto extends Vehicle {
+
+    private final boolean maleter;
+
+    public Moto(String marca, int potencia, int velocitat, int velocitatMaxima, double consumBase, boolean maleter) {
+        super(marca, potencia, velocitat, velocitatMaxima, consumBase);
+        this.maleter = maleter;
+    }
+    
+    public Moto(Moto m) {
+        super(m); 
+        this.maleter = m.maleter; 
+    }
+
+    @Override
+    public double retornaConsum() {
+
+        double consumFinal = getConsumBase();
+
+        if (maleter) {
+            consumFinal += getConsumBase() * 0.04;
+        }
+        return consumFinal;
+    }
+    @Override
+    public Vehicle copiar() {
+        return new Moto(this); 
+    }
+    
+    @Override
+    public String toString() {
+        return "[MOTO]  Marca: " + getMarca() + 
+               " | Potència: " + getPotencia() + " CV" +
+               " | Vel: " + getVelocitat() + "/" + getVelocitatMaxima() + " km/h" +
+               " | Consum base: " + getConsumBase() + 
+               " | Maleter: " + (maleter ? "Sí" : "No");
+    }
+}
