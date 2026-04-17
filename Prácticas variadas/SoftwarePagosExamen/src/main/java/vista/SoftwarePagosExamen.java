@@ -133,9 +133,13 @@ public class SoftwarePagosExamen {
                         System.out.println("[!] Comando no reconocido.");
                     }
 
-                } catch (Exception e) { // CAPTURA GENERAL DE EXCEPCIONES (Tema 4)
-                    System.out.println(Configuracion.ERROR_CRITICO + "Fallo en la matriz de ejecución: " + e.getMessage());
-                }
+                } catch (Exception e) {
+                String error = "Caída del sistema: " + e.getMessage();
+                System.out.println(Configuracion.ERROR_CRITICO + error);
+                
+                // [NUEVO] Escribimos el error crítico en la Caja Negra
+                controlador.LogForense.registrarEvento("CRÍTICO", error);
+            }
 
             } while (opcion != 6);
             
@@ -221,6 +225,9 @@ public class SoftwarePagosExamen {
             for (int c = 0; c < matriz[f].length; c++) {
                 if (matriz[f][c] > 1000) {
                     System.out.println("    [!] ALERTA en ["+f+"]["+c+"]: " + matriz[f][c] + "€ detectados.");
+                    alertas++;
+                    
+                    controlador.LogForense.registrarEvento("ALERTA", "Pago anómalo de " + matriz[f][c] + "€ en el sector ["+f+"]["+c+"]");
                     alertas++;
                 }
             }
