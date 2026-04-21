@@ -1,4 +1,4 @@
-package es.casadiaz.operacioneclipsedigital.vista;
+package vista;
 
 import java.io.FileNotFoundException;
 
