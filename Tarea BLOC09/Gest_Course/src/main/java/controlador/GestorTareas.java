@@ -12,7 +12,7 @@ import modelo.Tarea;
 public class GestorTareas {
     
     private ArrayList<Tarea> listaTareas;
-    private final String ARCHIVO_DATOS = "tareas.dat"; // Nombre del archivo de guardado
+    private final String ARCHIVO_DATOS = "tareas.dat";
 
     public GestorTareas() {
         cargarDatos();
